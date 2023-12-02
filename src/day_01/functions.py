@@ -17,3 +17,4 @@ def convert_string_to_number(input):
     else:
         number = input
     return number
+
