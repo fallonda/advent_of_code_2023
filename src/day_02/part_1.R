@@ -4,6 +4,7 @@ library(tidyr)
 
 source("./src/day_02/functions.R")
 
+# Run the example: 
 example_input <- read_tsv(
     "./src/day_02/part_1_example.txt",
     show_col_types = FALSE,
@@ -12,31 +13,33 @@ example_input <- read_tsv(
 
 example_full_long <- create_full_long(example_input)
 
-example_piv_by_colour <- example_full_long |>
-pivot_wider(
-    id_cols = c("game", "sampling"),
-    names_from = colour,
-    values_from = number
-) |>
-replace_na(list(
-    blue = 0,
-    red = 0,
-    green = 0
-))
+example_results <- example_full_long |>
+    pivot_by_colour() |>
+    filter_to_allowed_games(
+        red_filter = 12,
+        green_filter = 13,
+        blue_filter = 14
+    )
 
-allowed_games <- example_piv_by_colour |>
-mutate(
-    sampling_allowed = {
-        (blue <= 14) &
-        (red <= 12) &
-        (green <= 13)
-    }
-) |>
-group_by(game) |>
-mutate(
-    game_allowed = all(sampling_allowed)
-) |>
-ungroup() |>
-filter(game_allowed)
+print(sum(unique(example_results$game)))
 
-sum(unique(allowed_games$game))
+
+# Run the full input
+full_input <- read_tsv(
+    "./src/day_02/full_input.txt",
+    show_col_types = FALSE,
+    col_names = "text"
+)
+
+full_results <- full_input |>
+    create_full_long() |>
+    pivot_by_colour() |>
+    filter_to_allowed_games(
+        red_filter = 12,
+        green_filter = 13,
+        blue_filter = 14
+    )
+
+print(sum(unique(full_results$game)))
+
+View(full_results)

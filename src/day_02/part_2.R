@@ -36,5 +36,4 @@ pt2_full_results <- full_input |>
 print(pt2_full_results)
 
 
-View(example_full_long)
 
