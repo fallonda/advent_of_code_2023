@@ -2,44 +2,15 @@ library(readr)
 library(dplyr)
 library(tidyr)
 
+source("./src/day_02/functions.R")
+
 example_input <- read_tsv(
     "./src/day_02/part_1_example.txt",
     show_col_types = FALSE,
     col_names = "text"
 )
 
-example_full_long <- example_input |>
-separate_wider_delim(
-    cols = text,
-    delim = ": ",
-    names = c("text", "samples")
-) |>
-separate_longer_delim(
-    cols = samples,
-    delim = "; ",
-) |>
-group_by(text) |>
-mutate(sampling = row_number()) |>
-ungroup() |>
-separate_longer_delim(
-    cols = samples,
-    delim = ", "
-) |>
-separate_wider_delim(
-    cols = samples,
-    delim = " ",
-    names = c("number", "colour")
-) |>
-rename(game = text) |>
-mutate(game = gsub(
-    pattern = "Game ",
-    replacement = "",
-    x = game
-)) |>
-mutate(
-    number = as.numeric(number),
-    game = as.numeric(game)
-)
+example_full_long <- create_full_long(example_input)
 
 example_piv_by_colour <- example_full_long |>
 pivot_wider(
