@@ -94,4 +94,16 @@ def filter_to_gears_only(input: list) -> tuple:
     return (parts_list)
 
 
+def get_product_and_sum(input): 
+    as_df = pd.DataFrame(input)
+    as_df["number"] = [int(x) for x in as_df["number"]]
+    as_df_grouped = as_df.groupby("gear_pos").agg({
+        "number": ["count", "prod"]    
+    }).reset_index()
+    filt_to_true_gears = as_df_grouped.loc[as_df_grouped["number"]["count"] > 1, :]
+    result = filt_to_true_gears["number"]["prod"].sum()
+    return result
+    
+
+
 
