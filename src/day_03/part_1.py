@@ -1,9 +1,9 @@
-from src.day_03.functions import (
+from day_03.p1_functions import (
     run_all,
-    read_in_as_array,
     find_part_numbers,
     filter_to_part_numbers_and_sum
 )
+from src.utils import read_in_as_array
 
 p1_example_results = run_all("./src/day_03/part_1_example.txt")
 print(p1_example_results)

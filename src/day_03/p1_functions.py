@@ -1,18 +1,6 @@
-from src.utils import read_text
+from src.utils import read_in_as_array
 import numpy as np
 import re
-
-
-def read_in_as_array(path):
-    """Reads text file in and converts it to a 1d
-    numpy array."""
-    file_in = read_text(path)
-    as_array = np.loadtxt(
-        file_in,
-        dtype = "str",
-        comments = None
-    )
-    return as_array
 
 def find_part_numbers(array: np.array) -> list:
     """Process array to get list of part numbers and
