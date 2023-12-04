@@ -1,5 +1,5 @@
 from src.utils import read_text
-import 
+import re
 from time import sleep
 
 p1_example = read_text("./src/day_04/p1_example.txt")
