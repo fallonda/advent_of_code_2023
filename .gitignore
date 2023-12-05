@@ -160,4 +160,4 @@ cython_debug/
 #.idea/
 
 # Anything that is input
-*.txt
+src/*.txt
