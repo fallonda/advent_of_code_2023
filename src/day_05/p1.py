@@ -6,87 +6,81 @@ import pandas as pd
 p1_example = read_text("./src/day_05/p1_example.txt")
 p1_example.extend("\n")
 
-seeds = []
-maps = {}
-for i, line in enumerate(p1_example):
-    # Get the seed numbers as array
-    if i == 0:
-        seeds.append(
-                np.loadtxt(
-                    fname = StringIO(line.split(": ")[1]),
-                    dtype = int
-                )                
-        )
-    if "map:" in line:
-        title = line.split(" ")[0]
-        mapping_list = []
-        j = 1
-        while p1_example[i+j][0] != "\n":
-            mapping_list.append(
-                np.loadtxt(
-                    fname = StringIO(p1_example[i+j]),
-                    dtype = int
-                )
-            )
-            j += 1
-        maps[title] = mapping_list  
-        
-# print(seeds)
-# print(maps)
+full_input = read_text("./src/day_05/full_input.txt")
+full_input.extend("\n")
 
-df_dict = {}
-for key, value in maps.items():
-    first_colname = key.split("-to-")[0]
-    second_colname = key.split("-to-")[1]
-    source_list = []
-    dest_list = []
-    for i in value:
-        source_list.extend([x for x in range(i[1], i[1]+i[2])])
-        dest_list.extend([x for x in range(i[0], i[0]+i[2])])
-    df_dict[key] = pd.DataFrame({
-        first_colname: source_list,
-        second_colname: dest_list
-    })
+def get_seeds(input: list) -> list:
+    seeds = np.loadtxt(
+        fname = StringIO(input[0].split(": ")[1]),
+        dtype = int
+    )
+    return seeds
 
-print(df_dict)
-
-first_df = list(df_dict.values())[0]
-print(first_df.shape)
-for seed in seeds[0]:
-    if (seed in first_df["seed"]):
-        print(seed)
-        first_df = pd.concat([
-            first_df,
-            pd.DataFrame({"seed": [seed], "soil": [seed]})],
-            ignore_index=True
-        )
-        
-print(first_df)
-print(first_df.shape)
-
-first_df = first_df.drop_duplicates("seed")
-print(first_df.shape)
-
-
-remaining_dfs = list(df_dict.values())[1:]
+example_seeds = get_seeds(p1_example)
+full_seeds = get_seeds(full_input)
     
-combined_df = first_df.copy()
-for i in remaining_dfs:
-    combined_df = combined_df.merge(
-        i,
-        how = "left"
-    )
-    combined_df.iloc[:, -1] = np.where(
-        combined_df.iloc[:, -1].isna(),
-        combined_df.iloc[:, -2],
-        combined_df.iloc[:, -1]
-    )
-print(combined_df)
-print(combined_df.shape)
+def get_ranges(input: list) -> dict:
+    maps = {}
+    for i, line in enumerate(input):
+        if "map:" in line:
+            title = line.split(" ")[0]
+            mapping_list = []
+            j = 1
+            while input[i+j][0] != "\n":
+                mapping_list.append(
+                    np.loadtxt(
+                        fname = StringIO(input[i+j]),
+                        dtype = int
+                    )
+                )
+                j += 1
+            maps[title] = mapping_list
+    return maps
 
-asdf = [x in first["seed"] for x in seeds[0]]
-print(asdf)
+example_mapping_dict = get_ranges(p1_example)
+full_mapping_dict = get_ranges(full_input)
 
-seeds_only = combined_df.loc[combined_df["seed"].isin(seeds[0])]
+def get_next_number(current_num: int, list_of_arrays: list) -> int:
+    for i in list_of_arrays:
+        dest_start, source_start, out_by = i
+        new_num = current_num # Default
+        # Update it if there is a match: 
+        range_to_check = range(source_start, source_start+out_by)
+        # print(f"range_to_check: {range_to_check}")
+        if (current_num >= source_start) & (current_num < source_start+out_by):
+            # print("New_num_found!")
+            index_pos = new_num - source_start
+            # print(f"index_pos: {index_pos}")
+            new_num = dest_start + index_pos
+            return new_num
+        # else:
+        #     print("No new num found.")
+    return new_num
 
-seeds_only
+# test it
+get_next_number(4, [np.array([1,2,3])])
+get_next_number(4, [np.array([1,2,2])])
+
+def map_seed_to_location(seed: int, mapping_dict: dict) -> int:
+    current_num = seed
+    for key, value in mapping_dict.items():
+        print(f"For: {key}")
+        print(f"Current_num: {current_num}")
+        current_num = get_next_number(current_num, list_of_arrays = value)
+        print(f"After mapping: {current_num} \n")
+    return current_num
+
+# test it
+def get_all_locations(seeds, mapping_dict):
+    locations = []
+    for seed in seeds:
+        # print(seed)
+        loc = map_seed_to_location(seed, mapping_dict)
+        locations.append(loc)
+    min_loc = min(locations)
+    return locations, min_loc
+
+example_locations = get_all_locations(example_seeds, example_mapping_dict)
+print(example_locations)
+full_locations = get_all_locations(full_seeds, full_mapping_dict)
+print(full_locations)
