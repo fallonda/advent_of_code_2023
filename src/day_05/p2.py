@@ -158,7 +158,7 @@ def search_for_seeds(loc_range, ranges, mapping_dict):
             #raise ValueError(f"Run complete: {loc}")
             return (seed, loc)
 
-full_search_range = range(0, int(1e9))
+full_search_range = range(int(1e9))
 split_by = 8
 split_ranges = []
 for i in range(split_by):
@@ -176,4 +176,10 @@ min([x[1] for x in ray.get(example_res)])
 
 # Run on full input using ray. 
 full_results = [search_for_seeds.remote(i, p2_full_seeds, full_mapping_dict) for i in split_ranges]
-min([x[1] for x in ray.get(full_results)])
+sleep(0.1)
+min_location_found = min([x[1] for x in ray.get(full_results)])
+sleep(0.1)
+print(min_location)
+
+with open("results.txt", "w") as f:
+    f.writelines(str(min_location))
