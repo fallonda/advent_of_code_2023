@@ -1,8 +1,12 @@
 from src.utils import read_text
 import numpy as np
 from io import StringIO
-from tqdm import tqdm
 from time import time
+import os
+import ray
+
+os.environ["RAY_DEDUP_LOGS"] = "0"
+
 
 p1_example = read_text("./src/day_05/p1_example.txt")
 p1_example.extend("\n")
@@ -127,11 +131,14 @@ def check_if_seed_exists(seed: int, ranges: list) -> bool:
 # test it
 # check_if_seed_exists(89, p2_example_seeds)
 
+ray.init()
+
 # Check for seed existance starting with location
-def search_for_seeds(ranges, mapping_dict):
+@ray.remote
+def search_for_seeds(loc_range, ranges, mapping_dict):
     start_time = time()
     num_length_counter = 1
-    for loc in range(int(1e18)):
+    for loc in loc_range:
         if len(str(loc)) == num_length_counter:
             print(f"Counter: {loc}")
             end_time = time()
@@ -147,10 +154,19 @@ def search_for_seeds(ranges, mapping_dict):
             end_time = time()
             time_taken = end_time - start_time
             print(f"Time taken: {round(time_taken/60, 2)} min.")
-            break
+            raise ValueError("Run complete:")
 
 # test it on example
-search_for_seeds(p2_example_seeds, example_mapping_dict)
+# search_for_seeds(range(80), p2_example_seeds, example_mapping_dict)
 
-# Run on full input
-search_for_seeds(p2_full_seeds, full_mapping_dict)
+RAY_DEDUP_LOGS=0
+
+full_search_range = range(int(1e18))
+split_by = 8
+split_ranges = []
+for i in range(split_by):
+    sub_range = full_search_range[i::split_by]
+    split_ranges.append(sub_range)
+    
+# Run on full input using ray. 
+results = [search_for_seeds.remote(i, p2_full_seeds, full_mapping_dict) for i in split_ranges]
