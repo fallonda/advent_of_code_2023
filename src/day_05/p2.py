@@ -2,6 +2,7 @@ from src.utils import read_text
 import numpy as np
 from io import StringIO
 from tqdm import tqdm
+from time import time
 
 p1_example = read_text("./src/day_05/p1_example.txt")
 p1_example.extend("\n")
@@ -16,7 +17,7 @@ def get_seeds(input: list) -> list:
     )
     return seeds
 
-example_seeds = get_seeds(p1_example)
+
 
 def get_seeds_for_p2(p1_seeds: list) -> list:
     # Return list of ranges. 
@@ -29,8 +30,8 @@ def get_seeds_for_p2(p1_seeds: list) -> list:
         )
     return p2_seeds
 
+example_seeds = get_seeds(p1_example)
 p2_example_seeds = get_seeds_for_p2(example_seeds)
-print(p2_example_seeds)
 
 full_seeds = get_seeds(full_input)
 p2_full_seeds = get_seeds_for_p2(full_seeds)
@@ -71,11 +72,24 @@ def get_next_number(current_num: int, list_of_arrays: list) -> int:
         #     print("No new num found.")
     return new_num
 
-def map_backwards # STopped here. 
+def map_backwards(current_num: int, list_of_arrays: list) -> int:
+    for i in list_of_arrays:
+        source_start, dest_start, out_by = i # Different order
+        new_num = current_num # Default
+        # Update it if there is a match: 
+        if (current_num >= source_start) & (current_num < source_start+out_by):
+            # print("New_num_found!")
+            index_pos = new_num - source_start
+            # print(f"index_pos: {index_pos}")
+            new_num = dest_start + index_pos
+            return new_num
+        # else:
+        #     print("No new num found.")
+    return new_num
 
 # test it
-get_next_number(4, [np.array([1,2,3])])
-get_next_number(4, [np.array([1,2,2])])
+map_backwards(4, [np.array([1,2,3])])
+map_backwards(2, [np.array([1,2,2])])
 
 def map_seed_to_location(seed: int, mapping_dict: dict) -> int:
     current_num = seed
@@ -86,20 +100,57 @@ def map_seed_to_location(seed: int, mapping_dict: dict) -> int:
         #print(f"After mapping: {current_num} \n")
     return current_num
 
+def map_location_to_seed(location: int, mapping_dict: dict) -> int:
+    # returns a location int for a given seed int. 
+    current_num = location
+    rev_dict = dict(reversed(list(mapping_dict.items())))
+    for key, value in rev_dict.items():
+        # print(f"For: {key}")
+        # print(f"Current_num: {current_num}")
+        current_num = map_backwards(current_num, list_of_arrays = value)
+        # print(f"After mapping: {current_num} \n")
+    return current_num
+
 # test it
-def get_min_loc_for_seed_ranges(seed_ranges, mapping_dict):
-    min_loc_overall = []
-    for i in tqdm(seed_ranges):
-        min_loc_per_seed_range = []
-        for seed in i:
-            loc = map_seed_to_location(seed, mapping_dict)
-            min_loc_per_seed_range.append(loc)
-        min_found = min(min_loc_per_seed_range)
-        min_loc_overall.append(min_found)
-    return min(min_loc_overall)
+# map_location_to_seed(82, example_mapping_dict) # Excellent!
 
-# min_example_loc = get_min_loc_for_seed_ranges(p2_example_seeds, example_mapping_dict)
-# print(min_example_loc)
+def check_if_seed_exists(seed: int, ranges: list) -> bool:
+    for i in ranges:
+        min_val = i[0]
+        max_val = i[-1]
+        if (seed >= min_val) & (seed < max_val):
+            print(f"Seed '{seed}' found in range: {i}!!!")
+            return True
+        else:
+            return False
+        
+# test it
+# check_if_seed_exists(89, p2_example_seeds)
 
-min_full_loc = get_min_loc_for_seed_ranges(p2_full_seeds, full_mapping_dict)
-print(min_full_loc)
+# Check for seed existance starting with location
+def search_for_seeds(ranges, mapping_dict):
+    start_time = time()
+    num_length_counter = 1
+    for loc in range(int(1e18)):
+        if len(str(loc)) == num_length_counter:
+            print(f"Counter: {loc}")
+            end_time = time()
+            time_taken = end_time - start_time
+            print(f"Time taken: {round(time_taken/60, 2)} min.")
+            num_length_counter += 1
+        # print(f"mapping seed for location {loc}")
+        seed = map_location_to_seed(loc, mapping_dict)
+        # print(f"Checking if seed {seed} exists.")
+        seed_exists = check_if_seed_exists(seed, ranges)
+        if (seed_exists): # gives T/F
+            print(f"Seed: {seed}, Location: {loc}")
+            end_time = time()
+            time_taken = end_time - start_time
+            print(f"Time taken: {round(time_taken/60, 2)} min.")
+            break
+
+# test it on example
+search_for_seeds(p2_example_seeds, example_mapping_dict)
+
+# Run on full input
+search_for_seeds(p2_full_seeds, full_mapping_dict)
