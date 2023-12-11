@@ -4,6 +4,7 @@ from io import StringIO
 from time import time
 import os
 import ray
+from time import sleep
 
 os.environ["RAY_DEDUP_LOGS"] = "0"
 
@@ -131,7 +132,7 @@ def check_if_seed_exists(seed: int, ranges: list) -> bool:
 # test it
 # check_if_seed_exists(89, p2_example_seeds)
 
-ray.init()
+# ray.init()
 
 # Check for seed existance starting with location
 @ray.remote
@@ -154,19 +155,25 @@ def search_for_seeds(loc_range, ranges, mapping_dict):
             end_time = time()
             time_taken = end_time - start_time
             print(f"Time taken: {round(time_taken/60, 2)} min.")
-            raise ValueError("Run complete:")
+            #raise ValueError(f"Run complete: {loc}")
+            return (seed, loc)
 
-# test it on example
-# search_for_seeds(range(80), p2_example_seeds, example_mapping_dict)
-
-RAY_DEDUP_LOGS=0
-
-full_search_range = range(int(1e18))
+full_search_range = range(0, int(1e9))
 split_by = 8
 split_ranges = []
 for i in range(split_by):
     sub_range = full_search_range[i::split_by]
     split_ranges.append(sub_range)
-    
+
+
+# test it on example
+# example_res = search_for_seeds(full_search_range, p2_example_seeds, example_mapping_dict)
+# print(example_res)
+example_res = [search_for_seeds.remote(x, p2_example_seeds, example_mapping_dict) for x in split_ranges]
+sleep(0.1)
+min([x[1] for x in ray.get(example_res)])
+
+
 # Run on full input using ray. 
-results = [search_for_seeds.remote(i, p2_full_seeds, full_mapping_dict) for i in split_ranges]
+full_results = [search_for_seeds.remote(i, p2_full_seeds, full_mapping_dict) for i in split_ranges]
+min([x[1] for x in ray.get(full_results)])
