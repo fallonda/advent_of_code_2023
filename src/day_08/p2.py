@@ -1,6 +1,6 @@
 from src.utils import read_text
 from itertools import cycle
-from time import time
+from math import lcm
 
 full_input = read_text("./src/day_08/full_input.txt")
 
@@ -61,6 +61,7 @@ ghosts = [Ghost(a) for a in a_pos]
         
 ghost_moves = [a.go_until_z(full_input_inst, full_input_map) for a in ghosts]
 
+lcm(*ghost_moves)
 
 # # Game loop
 # def nav_map(ghosts, instructions, map_dict) -> int:

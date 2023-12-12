@@ -10,7 +10,7 @@ def read_text(filepath):
     return(lines_in)
 
 
-def read_in_as_array(path):
+def read_in_as_array(path, dtype="str"):
     """Reads text file in and converts it to a 1d
     numpy array."""
     file_in = read_text(path)
