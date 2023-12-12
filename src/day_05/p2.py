@@ -93,8 +93,8 @@ def map_backwards(current_num: int, list_of_arrays: list) -> int:
     return new_num
 
 # test it
-map_backwards(4, [np.array([1,2,3])])
-map_backwards(2, [np.array([1,2,2])])
+# map_backwards(4, [np.array([1,2,3])])
+# map_backwards(2, [np.array([1,2,2])])
 
 def map_seed_to_location(seed: int, mapping_dict: dict) -> int:
     current_num = seed
@@ -120,19 +120,22 @@ def map_location_to_seed(location: int, mapping_dict: dict) -> int:
 # map_location_to_seed(82, example_mapping_dict) # Excellent!
 
 def check_if_seed_exists(seed: int, ranges: list) -> bool:
+    seed_found = False # Default
     for i in ranges:
         min_val = i[0]
         max_val = i[-1]
         if (seed >= min_val) & (seed < max_val):
             print(f"Seed '{seed}' found in range: {i}!!!")
-            return True
-        else:
-            return False
+            seed_found = True
+            break
+    return seed_found # Return the first range found. 
         
-# test it
+# # test it
+# check_if_seed_exists(93, p2_example_seeds)
 # check_if_seed_exists(89, p2_example_seeds)
-
-# ray.init()
+# check_if_seed_exists(55, p2_example_seeds)
+# check_if_seed_exists(66, p2_example_seeds)
+# check_if_seed_exists(67, p2_example_seeds)
 
 # Check for seed existance starting with location
 @ray.remote
@@ -177,9 +180,10 @@ min([x[1] for x in ray.get(example_res)])
 # Run on full input using ray. 
 full_results = [search_for_seeds.remote(i, p2_full_seeds, full_mapping_dict) for i in split_ranges]
 sleep(0.1)
+ray.get(full_results)
 min_location_found = min([x[1] for x in ray.get(full_results)])
 sleep(0.1)
-print(min_location)
+print(min_location_found)
 
 with open("results.txt", "w") as f:
-    f.writelines(str(min_location))
+    f.writelines(str(min_location_found))
