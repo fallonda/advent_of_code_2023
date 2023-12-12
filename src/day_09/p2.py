@@ -18,14 +18,20 @@ def get_subseqs(seq):
         all_seqs.append(get_differences(all_seqs[-1]))
     return(all_seqs)
 
-example_subs = get_subseqs(example[0])
+example_subs = get_subseqs(example[2])
 example_subs
 
 def prediction(seqs: list) -> int:
     val = 0
-    for i in reversed(range(len(seqs))):
-        val = seqs[i-1][-1] + val
+    follow_seq = [x for x in reversed(range(len(seqs)))]
+    follow_seq.remove(0)
+    # print(follow_seq)
+    for i in follow_seq:
+        val = seqs[i-1][0] - val
+        # print(f"f{val}")
     return val
+
+prediction(example_subs)
 
 def wrap(arrays):
     res = 0
