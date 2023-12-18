@@ -52,7 +52,6 @@ def get_shortest_paths(list_pos: list, array:np.array, expansion_factor:int = 1)
             higher_col = max([pos[1], other_pos[1]])
             row_to_check = array[pos[0]][lower_col:higher_col]
             num_in_row = len([x for x in row_to_check if x == "o"])
-            print(num_in_row)
             col_to_check = array.T[pos[1]][lower_row:higher_row]
             num_in_col = len([x for x in col_to_check if x == "o"])
             if expansion_factor > 1:
@@ -66,11 +65,11 @@ def get_shortest_paths(list_pos: list, array:np.array, expansion_factor:int = 1)
         shortest_paths.extend(dists)
     return shortest_paths
 
-sum(get_shortest_paths(ex_pos, ex_space))
+sum(get_shortest_paths(ex_pos, ex_space, expansion_factor = 10))
 
 # Full input
 full_input = read_in_and_split("./src/day_11/full_input.txt")
-full_input = insert_space(full_input)
-full_input = get_galaxy_positions(full_input)
+full_input_spaced = insert_space(full_input)
+full_input_pos = get_galaxy_positions(full_input_spaced)
 
-sum(get_shortest_paths(full_input))
+sum(get_shortest_paths(full_input_pos, full_input_spaced, expansion_factor = int(1e6)))
