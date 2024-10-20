@@ -1,5 +1,7 @@
 # advent_of_code_2023
 
+Got up to day 12, might comeback and finish later. 
+
 # Setup 
 
 ```bash
