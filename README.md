@@ -2,6 +2,8 @@
 
 Got up to day 12, might comeback and finish later. 
 
+Mix of Python and R, depending on the day. 
+
 # Setup 
 
 ```bash
